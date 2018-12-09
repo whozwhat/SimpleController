@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SimpleController:jar">
+    <output-path>$USER_HOME$/Desktop/科大软件/J2EE/e1</output-path>
+    <root id="archive" name="SimpleController.jar">
+      <element id="module-output" name="SimpleController" />
+      <element id="extracted-dir" path="D:/apache-tomcat-9.0.13/lib/servlet-api.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
