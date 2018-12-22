@@ -4,6 +4,10 @@
     <root id="archive" name="SimpleController.jar">
       <element id="module-output" name="SimpleController" />
       <element id="library" level="project" name="servlet-api" />
+      <element id="library" level="project" name="Maven: org.ow2.asm:asm:7.0" />
+      <element id="library" level="project" name="Maven: org.apache.ant:ant:1.10.3" />
+      <element id="library" level="project" name="Maven: org.apache.ant:ant-launcher:1.10.3" />
+      <element id="library" level="project" name="Maven: cglib:cglib:3.2.10" />
     </root>
   </artifact>
 </component>
