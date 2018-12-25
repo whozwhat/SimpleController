@@ -78,8 +78,11 @@ public class SimpleController extends HttpServlet {
                     request.getRequestDispatcher(resV).forward(request, response);
                 } else if (resT.equals("redirect")) {
                     response.sendRedirect(resV);
+                }else if(resT.equals("script")) {
+                    PrintWriter out = response.getWriter();
+                    out.print("<html><head><meta charset='UTF-8'></head>");
+                    out.print(resV);
                 }
-
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } catch (NoSuchMethodException e) {

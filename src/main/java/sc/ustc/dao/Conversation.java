@@ -2,12 +2,55 @@ package sc.ustc.dao;
 
 import sc.ustc.bean.OR_class;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
 
 public class Conversation {
+
+    public  static  boolean insertObject (Object o){
+        Class<?> cla = o.getClass();
+        OR_class orC = Configuration.class_config(cla.getName());
+        String table = orC.getTable();
+        List<List<String>> propertyList = orC.getPropertyList();
+
+        StringBuilder sqlb = new StringBuilder();
+        sqlb.append("insert into "+table+" values (");
+
+        for(int i = 0;i<propertyList.size();i++){
+            try {
+                PropertyDescriptor propertyDescriptor = new PropertyDescriptor(propertyList.get(i).get(0),cla);
+                Method method = propertyDescriptor.getReadMethod();
+                String value = (String) method.invoke(o);
+                sqlb.append(value+",");
+            } catch (IntrospectionException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+        sqlb.deleteCharAt(sqlb.length()-1);
+        sqlb.append(");");
+        String sql = sqlb.toString();
+        System.out.println("sql:"+sql);
+        try{
+        Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            return preparedStatement.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public static Object getObject(Object o) {
 
@@ -26,11 +69,11 @@ public class Conversation {
                 String fieldString = (String) field.get(o);
                 Object ro = cla.newInstance();
                 //Method method = cla.getMethod("set"+field.getName(),field.getType());
-                if(field.getType().getName().equals("Integer") )
+                System.out.println("field.getType().getName()"+field.getType().getName());
                 //method.invoke(ro,Integer.parseInt(fieldString));
-                    field.set(ro,Integer.parseInt(fieldString));
+                //field.set(ro,fieldString);
                 // 构造查询sql
-                for(int i =1;i<propertyList.size();i++) {
+                for(int i =0;i<propertyList.size();i++) {
                     String sql = ("select " + propertyList.get(i).get(1) + " from " + table + " where " + propertyList.get(0).get(1) + "=" + fieldString);
                     Connection conn = getConnection();
                     // select
@@ -68,43 +111,41 @@ public class Conversation {
 
         try {
 
-            // 通过反射机制得到object的id属性
             Class<?> cla = o.getClass();
-            Field id = cla.getDeclaredField("id");
-            id.setAccessible(true);
-            String idString = (String) id.get(o);
-
-            // 解析xml文件得到对应的数据库表
             OR_class orC = Configuration.class_config(cla.getName());
             String table = orC.getTable();
             List<List<String>> propertyList = orC.getPropertyList();
-            String tableId = null;
-            for (int i = 0; i < propertyList.size(); i++) {
-                if (propertyList.get(i).get(0).equals("id")) {
-                    tableId = propertyList.get(i).get(1);
-                }
-            }
+            String tableUserID = null;
+
+            PropertyDescriptor propertyDescriptor = new PropertyDescriptor(propertyList.get(0).get(0),cla);
+            Method method = propertyDescriptor.getReadMethod();
+            //if(propertyDescriptor.getPropertyType().getName().equals("Integer"))
+            String userID = (String) method.invoke(o);
+            tableUserID = propertyList.get(0).get(1);
+
 
             // 连接DB
             Connection conn = getConnection();
 
             // delete
-            String sql = "delete from " + table + " where " + tableId + " = ?";
+            String sql = "delete from " + table + " where " + tableUserID + " = ?";
             PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, idString);
+            ps.setString(1, userID);
             return ps.executeUpdate() == 1;
 
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (SecurityException e) {
             e.printStackTrace();
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
+        }  catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IntrospectionException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
 
