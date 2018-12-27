@@ -23,19 +23,8 @@ public class Conversation {
         sqlb.append("insert into "+table+" values (");
 
         for(int i = 0;i<propertyList.size();i++){
-            try {
-                PropertyDescriptor propertyDescriptor = new PropertyDescriptor(propertyList.get(i).get(0),cla);
-                Method method = propertyDescriptor.getReadMethod();
-                String value = (String) method.invoke(o);
-                sqlb.append(value+",");
-            } catch (IntrospectionException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
+                sqlb.append("?,");
             }
-        }
         sqlb.deleteCharAt(sqlb.length()-1);
         sqlb.append(");");
         String sql = sqlb.toString();
@@ -43,10 +32,22 @@ public class Conversation {
         try{
         Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            return preparedStatement.executeUpdate() == 1;
+            for(int i = 0;i<propertyList.size();i++) {
+                PropertyDescriptor propertyDescriptor = new PropertyDescriptor(propertyList.get(i).get(0),cla);
+                Method method = propertyDescriptor.getReadMethod();
+                String value = (String) method.invoke(o);
+                preparedStatement.setString(i+1,value);
+            }
+                return preparedStatement.executeUpdate() == 1;
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (IntrospectionException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
         return false;

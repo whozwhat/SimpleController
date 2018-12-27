@@ -81,7 +81,7 @@ public class SimpleController extends HttpServlet {
                 }else if(resT.equals("script")) {
                     PrintWriter out = response.getWriter();
                     out.print("<html><head><meta charset='UTF-8'></head>");
-                    out.print(resV);
+                    out.print("<script>"+resV+"</script>");
                 }
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
